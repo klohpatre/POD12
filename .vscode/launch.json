@@ -1,15 +1,84 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    // Larkspur build configs. All of these run on .venv, so no terminal
+    // activation is needed and `python3` vs `python` never comes up.
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "chrome",
+            // The demo, on the port serve.py actually binds. Leave it running
+            // and refresh the browser: serve.py re-imports agent.py per
+            // request, so edits show up without a restart.
+            "name": "Demo: serve on :4390",
+            "type": "debugpy",
             "request": "launch",
-            "name": "Launch Chrome against localhost",
-            "url": "http://localhost:8080",
-            "webRoot": "${workspaceFolder}"
+            "program": "${workspaceFolder}/demo/serve.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONIOENCODING": "utf-8"
+            },
+            "serverReadyAction": {
+                "pattern": "http://localhost:([0-9]+)",
+                "uriFormat": "http://localhost:%s",
+                "action": "openExternally"
+            }
+        },
+        {
+            // Walk the wire for one booking. Prompts for the PNR.
+            "name": "run.py --trace (ask for PNR)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/run.py",
+            "args": [
+                "${input:pnr}",
+                "--trace"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONIOENCODING": "utf-8"
+            }
+        },
+        {
+            // Run a step's gate. Prompts for the step.
+            "name": "verify.py (ask for step)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/verify.py",
+            "args": [
+                "${input:step}"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONIOENCODING": "utf-8"
+            }
+        },
+        {
+            // Breakpoints in run_agent: this is the one to use when you want to
+            // stop mid-loop and look at `messages` before the next API call.
+            "name": "Python: current file",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONIOENCODING": "utf-8"
+            }
+        }
+    ],
+    "inputs": [
+        {
+            "id": "pnr",
+            "type": "promptString",
+            "description": "PNR to run (e.g. K7PQ2M, or R8KD3F for the abusive-message ticket)",
+            "default": "K7PQ2M"
+        },
+        {
+            "id": "step",
+            "type": "promptString",
+            "description": "Gate to run: 1.2, 1.3, 1.4, 2.1, 2.2, 3.1, 4.1",
+            "default": "1.2"
         }
     ]
 }

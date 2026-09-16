@@ -1,0 +1,17 @@
+{
+    // Point VS Code at the venv setup.py built. Without this, debugpy and the
+    // terminal can pick the system Python, where `import anthropic` fails.
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+    "python.terminal.activateEnvironment": true,
+
+    // The deterministic half of the fix. Windows ships a Microsoft Store stub
+    // named python3.exe on PATH that runs nothing ("Python was not found"), and
+    // it wins in any terminal where the venv was not activated. Putting
+    // .venv/Scripts first means `python3` resolves to the real interpreter in
+    // every new terminal, activated or not, so the commands in the workshop
+    // docs work as written.
+    "terminal.integrated.env.windows": {
+        "PATH": "${workspaceFolder}\\.venv\\Scripts;${env:PATH}",
+        "PYTHONIOENCODING": "utf-8"
+    }
+}

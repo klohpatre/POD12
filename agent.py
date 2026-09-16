@@ -117,17 +117,47 @@ def build_tools() -> List[Dict[str, Any]]:                 # ✏️ Build 1, ste
                 "type": "object",
                 "properties": {
                     "flight_no": {"type": "string"},
-                    "date": {"type": "string", "description": "MM/DD/YYYY"},
+                    "date": {
+                        "type": "string",
+                        "description": (
+                            "The flight's local departure date as YYYY-MM-DD (ISO-8601), "
+                            "e.g. 2025-05-08. Any other format is rejected. Use the date "
+                            "on the segment returned by lookup_booking, not today's date."
+                        ),
+                    },
                 },
                 "required": ["flight_no", "date"],
             },
         },
         {
             "name": "search_alternatives",
-            "description": "search",
+            "description": (
+                "Find the specific Larkspur flights this customer could actually be moved "
+                "to after a delay, cancellation or misconnect. Call this whenever the "
+                "customer's flight will not get them there and rebooking is on the table, "
+                "before you describe their options: a customer whose flight was cancelled "
+                "wants flight numbers and departure times, not an offer to go looking. "
+                "Do not ask them whether they want you to search, and do not name a "
+                "replacement flight you have not seen here. Read the booking with "
+                "lookup_booking first so the PNR is confirmed; this tool works out the "
+                "route, date, cabin and passenger count from the booking itself, so the "
+                "PNR is all it needs. Returns options with an option_id, flight numbers, "
+                "times and seats left, plus excluded flights with the reason they do not "
+                "work and any other-cabin fallbacks. Quote the option_id when you take a "
+                "choice into hold_seat or check_policy. Availability is live, so search "
+                "again rather than reusing options from earlier in the conversation."
+            ),
             "input_schema": {
                 "type": "object",
-                "properties": {"pnr": {"type": "string"}},
+                "properties": {
+                    "pnr": {
+                        "type": "string",
+                        "description": (
+                            "The confirmation code whose disrupted segment needs replacing, "
+                            "as confirmed by lookup_booking."
+                        ),
+                    }
+                },
                 "required": ["pnr"],
             },
         },
@@ -157,10 +187,38 @@ def build_tools() -> List[Dict[str, Any]]:                 # ✏️ Build 1, ste
         },
         {
             "name": "hold_seat",
-            "description": "Place a 15-minute hold on one alternative. Reversible. It simply expires.",
+            "description": (
+                "Reserve one specific alternative flight for this customer for 15 minutes so "
+                "the seat is still there while they decide. Reversible and safe: it changes "
+                "nothing about their ticket and simply expires if nobody acts, so you may "
+                "call it without asking permission once the customer has shown a clear "
+                "preference for one option. Hold exactly the option they chose, not several "
+                "to keep their choices open. Returns a hold_id, which is the only way to "
+                "confirm the rebooking afterwards, so tell the customer the hold_id and that "
+                "it expires in 15 minutes. This is the reversible step before the "
+                "irreversible one: confirm_rebooking needs this hold_id plus a token only "
+                "the customer's own Confirm-click can mint, and a hold left too long expires "
+                "and has to be taken again."
+            ),
             "input_schema": {
                 "type": "object",
-                "properties": {"option_id": {"type": "string"}, "pnr": {"type": "string"}},
+                "properties": {
+                    "option_id": {
+                        "type": "string",
+                        "description": (
+                            "An option_id copied exactly from a search_alternatives result in "
+                            "this conversation. Do not invent one, guess its format, or build it "
+                            "out of a flight number: this tool does not check that the option "
+                            "exists, so a made-up id holds nothing and fails only later, at "
+                            "confirm_rebooking. If you have no fresh result to copy from, call "
+                            "search_alternatives first."
+                        ),
+                    },
+                    "pnr": {
+                        "type": "string",
+                        "description": "The confirmation code being rebooked, as confirmed by lookup_booking.",
+                    },
+                },
                 "required": ["option_id", "pnr"],
             },
         },
