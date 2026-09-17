@@ -74,9 +74,12 @@ EXTRA_TOOLS: List[Dict[str, Any]] = [    # ✏️ Build 2, step 2.1: schemas for
         },
     },
 ]
-LOCAL_TOOLS: Dict[str, Any] = {          # ✏️ Build 2, step 2.1: the functions behind them
-    "next_available_day": next_available_day,
-}
+LOCAL_TOOLS: Dict[str, Any] = {}         # ✏️ Build 2, step 2.1: the functions behind them
+# Step 2.2: next_available_day is served by the MCP server, which carried it all
+# along, so the local registration came out. Only one program may own a tool name:
+# tool_results() checks mcp_client.tool_names before LOCAL_TOOLS, so a local copy
+# of an MCP name is unreachable code that still looks live. The schema stays in
+# EXTRA_TOOLS either way -- Claude still has to be told the tool exists.
 
 
 def text_of(response) -> str:
