@@ -49,7 +49,7 @@ THE JUDGE MODEL, and why it is not the agent's. Never let a model grade its own
 output. A judge on the same model id as the thing it is grading shares the
 blind spot that produced the answer: it reads its own phrasing as correct,
 because that is the phrasing it would have chosen. So JUDGE_MODEL defaults to
-claude-opus-4-8 while the agent runs on support/data.py's MODEL, a different
+claude-opus-5 while the agent runs on support/data.py's MODEL, a different
 tier. Up rather than down, on purpose: a judge has to be able to catch a fluent
 answer that contradicts a tool result, and a cheaper judge than the agent is a
 grader you cannot appeal to. It costs more per case and it is slower, which is
@@ -79,7 +79,7 @@ WORKSHOP = os.path.join(HERE, ".workshop")
 CASES_PATH = os.path.join(HERE, "evals", "cases.json")
 EXAMPLE_PATH = os.path.join(HERE, "evals", "cases.example.json")
 
-JUDGE_MODEL = os.environ.get("LARKSPUR_JUDGE_MODEL", "claude-opus-4-8")
+JUDGE_MODEL = os.environ.get("LARKSPUR_JUDGE_MODEL", "claude-opus-5")
 RUBRIC_VERSION = "v2"   # v1 over-specified grnd-0101; see evals/GRADER-BUG.md
 
 VERDICT_SCHEMA = {

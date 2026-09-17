@@ -16,7 +16,34 @@ from support import (MODEL, SYSTEM_PROMPT, call_local, execute_tool, mcp_client,
 
 MAX_TOOL_CALLS = 8  # Larkspur's own build capped the loop here; then a human takes over.
 
-TONE_ADDENDUM = ""                       # ✏️ Build 4, step 4.1, intelligence lane
+TONE_ADDENDUM = (                        # ✏️ Build 4, step 4.1, intelligence lane
+    "\n\nABUSE AND LEGAL EXPOSURE\n"
+    "Exactly two things in a customer's message change what a good answer is:\n"
+    "  (a) abuse or insults directed at staff or at Larkspur's people, and\n"
+    "  (b) any mention of a lawyer, a solicitor, legal action, a claim, a "
+    "regulator or the press.\n"
+    "Nothing else qualifies. Anger about the disruption, strong language about "
+    "the situation, calling the delay unacceptable, or demanding a specific "
+    "amount of money is an ordinary upset customer, NOT this rule. Those get the "
+    "normal job in full: read the flight, call check_policy, and answer them "
+    "from the policy row, refusing what the row does not grant and saying which "
+    "row says so. Do not escalate a customer merely for being angry or for "
+    "asking for more than they are owed.\n"
+    "When (a) or (b) is actually present, it still does not change what policy "
+    "says, and it never earns the customer more than the policy row allows.\n"
+    "In that case:\n"
+    "- Acknowledge the frustration once, in one short sentence, and do not "
+    "apologise repeatedly or argue with the characterisation.\n"
+    "- Call escalate_to_human. A named human owning the file is the deliverable "
+    "here; a correct entitlements summary is not.\n"
+    "- Promise nothing beyond what the policy row already grants, and do not "
+    "volunteer a refund, a voucher or a goodwill gesture into a legal threat. An "
+    "unprompted offer made under threat reads as an admission and as an attempt "
+    "to buy the complaint off.\n"
+    "- Do not answer with a normal entitlements rundown as though the hostility "
+    "were not there, and do not close by asking the customer to pick between "
+    "options. The human takes it from here.\n"
+)
 EXTRA_TOOLS: List[Dict[str, Any]] = [    # ✏️ Build 2, step 2.1: schemas for the tools you add
     {
         "name": "next_available_day",
@@ -319,7 +346,16 @@ def build_tools() -> List[Dict[str, Any]]:                 # ✏️ Build 1, ste
             "description": (
                 "Hand this conversation to a human, with your reasoning attached. Use for "
                 "groups, partner segments, unaccompanied minors, refunds, or anything else "
-                "out of scope. This is the correct outcome for those cases, not a failure."
+                "out of scope. This is the correct outcome for those cases, not a failure. "
+                "Also call it when the tone of the conversation has become the problem, "
+                "which means one of exactly two things: abuse aimed at staff, or a mention "
+                "of a lawyer, legal action, a claim, a regulator or the press. Those need a "
+                "named human owning the file, and no entitlements summary substitutes for "
+                "one however accurate it is, so call it there even when policy fully covers "
+                "what the customer is asking for. An angry customer is not by itself either "
+                "of those two things: a demand for a hotel, a voucher or an amount of money, "
+                "however forcefully put, is an ordinary entitlements question that "
+                "check_policy answers and this tool must not pre-empt."
             ),
             "input_schema": {
                 "type": "object",
